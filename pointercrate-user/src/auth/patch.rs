@@ -4,6 +4,7 @@ use crate::{
     patch::PatchUser,
     User,
 };
+use log::info;
 use pointercrate_core::util::{non_nullable, nullable};
 use serde::Deserialize;
 use sqlx::PgConnection;

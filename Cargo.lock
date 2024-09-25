@@ -1874,6 +1874,7 @@ dependencies = [
  "lazy_static",
  "log",
  "pointercrate-core",
+ "reqwest",
  "serde",
  "serde_json",
  "sqlx",

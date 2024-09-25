@@ -10,6 +10,7 @@ use crate::{error::Result, User};
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use legacy::LegacyAuthenticatedUser;
 use log::warn;
+use oauth2::OAuth2AuthenticatedUser;
 use pointercrate_core::error::CoreError;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -20,10 +21,12 @@ use std::{
 mod delete;
 mod get;
 pub mod legacy;
+pub mod oauth2;
 mod patch;
 
 pub enum AuthenticatedUser {
     Legacy(LegacyAuthenticatedUser),
+    OAuth2(OAuth2AuthenticatedUser),
 }
 
 #[derive(Debug, Deserialize, Serialize, Copy, Clone)]
@@ -39,15 +42,24 @@ pub struct CSRFClaims {
 }
 
 impl AuthenticatedUser {
+    pub fn is_legacy(&self) -> bool {
+        match self {
+            AuthenticatedUser::Legacy(_) => true,
+            AuthenticatedUser::OAuth2(_) => false,
+        }
+    }
+
     pub fn into_user(self) -> User {
         match self {
             AuthenticatedUser::Legacy(legacy) => legacy.into_user(),
+            AuthenticatedUser::OAuth2(oauth2) => oauth2.into_user(),
         }
     }
 
     pub fn user(&self) -> &User {
         match self {
             AuthenticatedUser::Legacy(legacy) => legacy.user(),
+            AuthenticatedUser::OAuth2(oauth2) => oauth2.user(),
         }
     }
 
@@ -143,6 +155,7 @@ impl AuthenticatedUser {
     fn salt(&self) -> Vec<u8> {
         match self {
             AuthenticatedUser::Legacy(legacy) => legacy.salt(),
+            _ => Vec::new(),
         }
     }
 
